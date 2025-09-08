@@ -1,3 +1,30 @@
+name: Deploy to EC2
+
+# Trigger deployment only on push to main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the files
+        uses: actions/checkout@v4
+
+      - name: Deploy files to EC2
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC20m9Z2rew+dlhmywG89UKWLlV0I+J1X59wm+xiy0XOz4TVQfgPD+7zZw+Zf/pZkMs7v6sy9pRGNNvi6LsqI8Dw1byRrEoHvGwT1a2rSAMoyM7gu5A+xzjp4UcGBNlKwaqAuSFqd50TtigkdECCdG7Ejbi6IC/v8k9D5Za+DsGiznwwjRC7kiSdKxBc5E9RufGiglsRKJknhFwlJywnf0tZ0SxePLJ4+Gr46BnTre27E+8/yFr0XkU5I8uU0LM2f8/tGSC5B9YapiSs7OfsYUB4D7USQBAgsC/1Jeboxh+KWD+8LlSM+mwMz3Fk+PpH0w6hD7b6S2a5vO6CWHNumk9B+y2VLHittfYnTyyIuh8HF7Y+zb1vAAK24NOO21eiwLb8p4RKVLaC74dvpcYu85sTvZzHPfXDup8OB2eo4JwGvteNKf0VAsYKSxmsQvzp41vUCVc0CTYIzMNYUkrhzGmJiAdS3UtED15nz2TyOmLraFBkgGctBusy+swWd/ltR92JFBcjS98vqSlikw/S2DwmZ9u7pcz95kdAUQH8CPECXWW59pTxUIreirJlJ4ewELBg+8XnJ2LwHh841KiE0tzpwQHzJcFowEBcAfC5isIbNh0yh/MyA4aCT/EcnWHvTfz9sTmKG4EL/eas0rWptma9rT78pxZW05V1pSpqoD53Q== bp2228@nau.edu
+          SOURCE: "."
+
+      - name: Setup and configure Apache2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_DNS }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
