@@ -15,6 +15,33 @@ jobs:
       - name: Checkout the files
         uses: actions/checkout@v4
 
+      - name: Debug - Check secrets configuration
+        run: |
+          echo "Checking if secrets are configured..."
+          if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then
+            echo "❌ EC2_SSH_KEY secret is not set"
+          else
+            echo "✅ EC2_SSH_KEY secret is configured"
+          fi
+          
+          if [ -z "${{ secrets.HOST_DNS }}" ]; then
+            echo "❌ HOST_DNS secret is not set"
+          else
+            echo "✅ HOST_DNS secret is configured: ${{ secrets.HOST_DNS }}"
+          fi
+          
+          if [ -z "${{ secrets.USERNAME }}" ]; then
+            echo "❌ USERNAME secret is not set"
+          else
+            echo "✅ USERNAME secret is configured: ${{ secrets.USERNAME }}"
+          fi
+          
+          if [ -z "${{ secrets.TARGET_DIR }}" ]; then
+            echo "❌ TARGET_DIR secret is not set"
+          else
+            echo "✅ TARGET_DIR secret is configured: ${{ secrets.TARGET_DIR }}"
+          fi
+
       - name: Deploy files to EC2
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
@@ -23,7 +50,6 @@ jobs:
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
           SOURCE: "."
-
 
       - name: Setup and configure Apache2
         uses: appleboy/ssh-action@v1.0.3
