@@ -17,30 +17,60 @@ jobs:
 
       - name: Debug - Check secrets configuration
         run: |
-          echo "Checking if secrets are configured..."
+          echo "=========================================="
+          echo "🔍 CHECKING GITHUB SECRETS"
+          echo "=========================================="
+          
           if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then
-            echo "❌ EC2_SSH_KEY secret is not set"
+            echo "❌ EC2_SSH_KEY secret is NOT SET"
           else
-            echo "✅ EC2_SSH_KEY secret is configured"
+            echo "✅ EC2_SSH_KEY secret is configured (length: ${#EC2_SSH_KEY})"
+            echo "First 50 chars: $(echo '${{ secrets.EC2_SSH_KEY }}' | head -c 50)..."
           fi
           
           if [ -z "${{ secrets.HOST_DNS }}" ]; then
-            echo "❌ HOST_DNS secret is not set"
+            echo "❌ HOST_DNS secret is NOT SET"
           else
             echo "✅ HOST_DNS secret is configured: ${{ secrets.HOST_DNS }}"
           fi
           
           if [ -z "${{ secrets.USERNAME }}" ]; then
-            echo "❌ USERNAME secret is not set"
+            echo "❌ USERNAME secret is NOT SET"
           else
             echo "✅ USERNAME secret is configured: ${{ secrets.USERNAME }}"
           fi
           
           if [ -z "${{ secrets.TARGET_DIR }}" ]; then
-            echo "❌ TARGET_DIR secret is not set"
+            echo "❌ TARGET_DIR secret is NOT SET"
           else
             echo "✅ TARGET_DIR secret is configured: ${{ secrets.TARGET_DIR }}"
           fi
+          
+          echo "=========================================="
+
+      - name: Test SSH Key Format
+        run: |
+          echo "=========================================="
+          echo "🔑 TESTING SSH KEY FORMAT"
+          echo "=========================================="
+          
+          # Create a temporary file with the SSH key
+          echo '${{ secrets.EC2_SSH_KEY }}' > /tmp/test_key
+          chmod 600 /tmp/test_key
+          
+          # Test if the key is valid
+          if ssh-keygen -l -f /tmp/test_key 2>/dev/null; then
+            echo "✅ SSH key format is valid"
+          else
+            echo "❌ SSH key format is INVALID"
+            echo "Key content preview:"
+            head -c 100 /tmp/test_key
+            echo "..."
+          fi
+          
+          # Clean up
+          rm -f /tmp/test_key
+          echo "=========================================="
 
       - name: Deploy files to EC2
         uses: easingthemes/ssh-deploy@v2.1.5
